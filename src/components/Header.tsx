@@ -76,16 +76,7 @@ export function AppHeader() {
                 {isAdmin && (
                   <button
                     onClick={() => handleNavigation('/admin')}
-                <button
-                  onClick={() => {
-                    handleNavigation('/requirements')
-                    setIsMenuOpen(false)
-                  }}
-                  className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
-                >
-                  Requirements
-                </button>
-                <button
+                    className="text-gray-600 hover:text-brand-blue transition-colors flex items-center gap-2"
                   >
                     <Shield className="h-4 w-4" />
                     Admin
@@ -175,7 +166,16 @@ export function AppHeader() {
               >
                 Search
               </button>
-              {session && (
+              <button
+                onClick={() => {
+                  handleNavigation('/requirements')
+                  setIsMenuOpen(false)
+                }}
+                className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
+              >
+                Requirements
+              </button>
+              {user && (
                 <>
                   <button
                     onClick={() => {
@@ -195,7 +195,7 @@ export function AppHeader() {
                   >
                     Profile
                   </button>
-                {isAdmin && (
+                  {isAdmin && (
                     <button
                       onClick={() => {
                         handleNavigation('/admin')
@@ -207,8 +207,8 @@ export function AppHeader() {
                       Admin
                     </button>
                   )}
-              </>
-            )}
+                </>
+              )}
             </nav>
           </div>
         )}
