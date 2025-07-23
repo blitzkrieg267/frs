@@ -102,12 +102,11 @@ export function DocumentManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-brand-navy">Document Management</h2>
         <Button 
           onClick={() => setShowUploadModal(true)}
-          className="bg-brand-blue hover:bg-brand-navy text-white"
+          className="bg-green-600 hover:bg-green-700 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Document
@@ -115,9 +114,9 @@ export function DocumentManager() {
       </div>
 
       {/* Search and Filters */}
-      <Card className="bg-white/90 backdrop-blur-sm border-brand-blue/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-brand-navy">
+      <Card className="bg-white shadow-sm">
+        <CardHeader className="border-b border-gray-100">
+          <CardTitle className="flex items-center gap-2 text-gray-900">
             <Search className="h-5 w-5" />
             Search & Filter Documents
           </CardTitle>
@@ -129,17 +128,17 @@ export function DocumentManager() {
               placeholder="Search documents by title or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-brand-blue/20 focus:ring-brand-blue focus:border-brand-blue"
+              className="pl-10 border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-navy">Document Type</label>
+              <label className="text-sm font-medium text-gray-700">Document Type</label>
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full p-2 border border-brand-blue/20 rounded-md focus:ring-brand-blue focus:border-brand-blue"
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="all">All Types</option>
                 <option value="act">Acts</option>
@@ -153,11 +152,11 @@ export function DocumentManager() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-navy">Regulator</label>
+              <label className="text-sm font-medium text-gray-700">Regulator</label>
               <select
                 value={selectedRegulator}
                 onChange={(e) => setSelectedRegulator(e.target.value)}
-                className="w-full p-2 border border-brand-blue/20 rounded-md focus:ring-brand-blue focus:border-brand-blue"
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="all">All Regulators</option>
                 <option value="Bank of Botswana">Bank of Botswana</option>
@@ -172,9 +171,9 @@ export function DocumentManager() {
       {/* Results Summary */}
       <div className="flex justify-between items-center">
         <p className="text-gray-600">
-          Showing <span className="font-semibold text-brand-navy">{filteredDocuments.length}</span> documents
+          Showing <span className="font-semibold text-gray-900">{filteredDocuments.length}</span> documents
         </p>
-        <Badge variant="outline" className="text-brand-blue border-brand-blue/30">
+        <Badge variant="outline" className="text-blue-600 border-blue-300">
           {documents.length} Total Documents
         </Badge>
       </div>
@@ -183,16 +182,16 @@ export function DocumentManager() {
       <div className="space-y-4">
         {filteredDocuments.length > 0 ? (
           filteredDocuments.map((doc) => (
-            <Card key={doc.id} className="bg-white/90 backdrop-blur-sm border-brand-blue/20">
+            <Card key={doc.id} className="bg-white shadow-sm border border-gray-200">
               <CardContent className="p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-brand-navy">{doc.title}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{doc.title}</h3>
                       <Badge className={getTypeColor(doc.type) + " border text-xs capitalize"}>
                         {doc.type}
                       </Badge>
-                      <Badge className="bg-brand-blue/10 text-brand-navy border-brand-blue/20 text-xs">
+                      <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs">
                         {doc.regulator}
                       </Badge>
                     </div>
@@ -216,13 +215,13 @@ export function DocumentManager() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-4">
-                    <Button size="sm" variant="outline" className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white">
+                    <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
                       <Eye className="h-3 w-3" />
                     </Button>
-                    <Button size="sm" variant="outline" className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white">
+                    <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
                       <Edit className="h-3 w-3" />
                     </Button>
-                    <Button size="sm" variant="outline" className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white">
+                    <Button size="sm" variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
                       <Download className="h-3 w-3" />
                     </Button>
                     <Button 
@@ -239,7 +238,7 @@ export function DocumentManager() {
             </Card>
           ))
         ) : (
-          <Card className="bg-white/80 backdrop-blur-sm border-brand-blue/20">
+          <Card className="bg-white shadow-sm border border-gray-200">
             <CardContent className="text-center py-12">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">No Documents Found</h3>
@@ -251,7 +250,7 @@ export function DocumentManager() {
               </p>
               <Button 
                 onClick={() => setShowUploadModal(true)}
-                className="bg-brand-blue hover:bg-brand-navy text-white"
+                className="bg-green-600 hover:bg-green-700 text-white"
               >
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Document
@@ -319,13 +318,13 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-2xl bg-white">
         <CardHeader>
-          <CardTitle className="text-brand-navy">Upload New Document</CardTitle>
+          <CardTitle className="text-gray-900">Upload New Document</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Title</label>
+                <label className="text-sm font-medium text-gray-700">Title</label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -334,7 +333,7 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Type</label>
+                <label className="text-sm font-medium text-gray-700">Type</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({...formData, type: e.target.value})}
@@ -353,7 +352,7 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-navy">Description</label>
+              <label className="text-sm font-medium text-gray-700">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -365,7 +364,7 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Regulator</label>
+                <label className="text-sm font-medium text-gray-700">Regulator</label>
                 <select
                   value={formData.regulator}
                   onChange={(e) => setFormData({...formData, regulator: e.target.value})}
@@ -378,7 +377,7 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Category</label>
+                <label className="text-sm font-medium text-gray-700">Category</label>
                 <Input
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
@@ -389,7 +388,7 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-navy">Tags (comma-separated)</label>
+              <label className="text-sm font-medium text-gray-700">Tags (comma-separated)</label>
               <Input
                 value={formData.tags}
                 onChange={(e) => setFormData({...formData, tags: e.target.value})}
@@ -403,7 +402,7 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
               </Button>
               <Button 
                 type="submit" 
-                className="bg-brand-blue hover:bg-brand-navy text-white"
+                className="bg-green-600 hover:bg-green-700 text-white"
                 disabled={isUploading}
               >
                 {isUploading ? 'Uploading...' : 'Upload Document'}

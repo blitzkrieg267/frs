@@ -105,12 +105,11 @@ export function NewsManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-brand-navy">News Management</h2>
         <Button 
           onClick={() => setShowCreateModal(true)}
-          className="bg-brand-blue hover:bg-brand-navy text-white"
+          className="bg-orange-600 hover:bg-orange-700 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
           Create News Article
@@ -118,9 +117,9 @@ export function NewsManager() {
       </div>
 
       {/* Search and Filters */}
-      <Card className="bg-white/90 backdrop-blur-sm border-brand-blue/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-brand-navy">
+      <Card className="bg-white shadow-sm">
+        <CardHeader className="border-b border-gray-100">
+          <CardTitle className="flex items-center gap-2 text-gray-900">
             <Search className="h-5 w-5" />
             Search & Filter News
           </CardTitle>
@@ -132,16 +131,16 @@ export function NewsManager() {
               placeholder="Search news by title or content..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-brand-blue/20 focus:ring-brand-blue focus:border-brand-blue"
+              className="pl-10 border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-brand-navy">Status</label>
+            <label className="text-sm font-medium text-gray-700">Status</label>
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full p-2 border border-brand-blue/20 rounded-md focus:ring-brand-blue focus:border-brand-blue"
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Status</option>
               <option value="published">Published</option>
@@ -155,9 +154,9 @@ export function NewsManager() {
       {/* Results Summary */}
       <div className="flex justify-between items-center">
         <p className="text-gray-600">
-          Showing <span className="font-semibold text-brand-navy">{filteredNews.length}</span> news articles
+          Showing <span className="font-semibold text-gray-900">{filteredNews.length}</span> news articles
         </p>
-        <Badge variant="outline" className="text-brand-blue border-brand-blue/30">
+        <Badge variant="outline" className="text-orange-600 border-orange-300">
           {news.length} Total Articles
         </Badge>
       </div>
@@ -166,12 +165,12 @@ export function NewsManager() {
       <div className="space-y-4">
         {filteredNews.length > 0 ? (
           filteredNews.map((item) => (
-            <Card key={item.id} className="bg-white/90 backdrop-blur-sm border-brand-blue/20">
+            <Card key={item.id} className="bg-white shadow-sm border border-gray-200">
               <CardContent className="p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-brand-navy">{item.title}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
                       <Badge className={getStatusColor(item.status) + " border text-xs capitalize"}>
                         {item.status}
                       </Badge>
@@ -201,13 +200,13 @@ export function NewsManager() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-4">
-                    <Button size="sm" variant="outline" className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white">
+                    <Button size="sm" variant="outline" className="border-orange-300 text-orange-600 hover:bg-orange-50">
                       <Eye className="h-3 w-3" />
                     </Button>
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white"
+                      className="border-orange-300 text-orange-600 hover:bg-orange-50"
                       onClick={() => setEditingNews(item)}
                     >
                       <Edit className="h-3 w-3" />
@@ -226,7 +225,7 @@ export function NewsManager() {
             </Card>
           ))
         ) : (
-          <Card className="bg-white/80 backdrop-blur-sm border-brand-blue/20">
+          <Card className="bg-white shadow-sm border border-gray-200">
             <CardContent className="text-center py-12">
               <Newspaper className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">No News Articles Found</h3>
@@ -238,7 +237,7 @@ export function NewsManager() {
               </p>
               <Button 
                 onClick={() => setShowCreateModal(true)}
-                className="bg-brand-blue hover:bg-brand-navy text-white"
+                className="bg-orange-600 hover:bg-orange-700 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create News Article
@@ -325,7 +324,7 @@ function NewsModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-4xl bg-white max-h-[90vh] overflow-y-auto">
         <CardHeader>
-          <CardTitle className="text-brand-navy">
+          <CardTitle className="text-gray-900">
             {news ? 'Edit News Article' : 'Create News Article'}
           </CardTitle>
         </CardHeader>
@@ -333,7 +332,7 @@ function NewsModal({
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Title</label>
+                <label className="text-sm font-medium text-gray-700">Title</label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -342,7 +341,7 @@ function NewsModal({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Category</label>
+                <label className="text-sm font-medium text-gray-700">Category</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
@@ -359,7 +358,7 @@ function NewsModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-navy">Summary</label>
+              <label className="text-sm font-medium text-gray-700">Summary</label>
               <Textarea
                 value={formData.summary}
                 onChange={(e) => setFormData({...formData, summary: e.target.value})}
@@ -370,7 +369,7 @@ function NewsModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-navy">Content</label>
+              <label className="text-sm font-medium text-gray-700">Content</label>
               <Textarea
                 value={formData.content}
                 onChange={(e) => setFormData({...formData, content: e.target.value})}
@@ -382,7 +381,7 @@ function NewsModal({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Regulator</label>
+                <label className="text-sm font-medium text-gray-700">Regulator</label>
                 <select
                   value={formData.regulator}
                   onChange={(e) => setFormData({...formData, regulator: e.target.value})}
@@ -395,7 +394,7 @@ function NewsModal({
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Priority</label>
+                <label className="text-sm font-medium text-gray-700">Priority</label>
                 <select
                   value={formData.priority}
                   onChange={(e) => setFormData({...formData, priority: e.target.value})}
@@ -408,7 +407,7 @@ function NewsModal({
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Status</label>
+                <label className="text-sm font-medium text-gray-700">Status</label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value})}
@@ -423,7 +422,7 @@ function NewsModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-navy">Tags (comma-separated)</label>
+              <label className="text-sm font-medium text-gray-700">Tags (comma-separated)</label>
               <Input
                 value={formData.tags}
                 onChange={(e) => setFormData({...formData, tags: e.target.value})}
@@ -437,7 +436,7 @@ function NewsModal({
               </Button>
               <Button 
                 type="submit" 
-                className="bg-brand-blue hover:bg-brand-navy text-white"
+                className="bg-orange-600 hover:bg-orange-700 text-white"
                 disabled={isSubmitting}
               >
                 <Save className="h-4 w-4 mr-2" />

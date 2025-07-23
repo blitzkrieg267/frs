@@ -61,18 +61,17 @@ export function UserManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-brand-navy">User Management</h2>
-        <Badge variant="outline" className="text-brand-blue border-brand-blue/30">
+        <Badge variant="outline" className="text-indigo-600 border-indigo-300">
           {users.length} Total Users
         </Badge>
       </div>
 
       {/* Search */}
-      <Card className="bg-white/90 backdrop-blur-sm border-brand-blue/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-brand-navy">
+      <Card className="bg-white shadow-sm">
+        <CardHeader className="border-b border-gray-100">
+          <CardTitle className="flex items-center gap-2 text-gray-900">
             <Search className="h-5 w-5" />
             Search Users
           </CardTitle>
@@ -84,7 +83,7 @@ export function UserManager() {
               placeholder="Search by email, name, or company..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-brand-blue/20 focus:ring-brand-blue focus:border-brand-blue"
+              className="pl-10 border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </CardContent>
@@ -92,31 +91,31 @@ export function UserManager() {
 
       {/* User Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-white/90 backdrop-blur-sm border-brand-blue/20 text-center p-6">
-          <Users className="h-8 w-8 text-brand-blue mx-auto mb-3" />
-          <div className="text-2xl font-bold text-brand-blue mb-1">{users.length}</div>
+        <Card className="bg-white shadow-sm border-l-4 border-l-indigo-500 text-center p-6">
+          <Users className="h-8 w-8 text-indigo-600 mx-auto mb-3" />
+          <div className="text-2xl font-bold text-gray-900 mb-1">{users.length}</div>
           <p className="text-sm text-gray-600">Total Users</p>
         </Card>
 
-        <Card className="bg-white/90 backdrop-blur-sm border-green-200 text-center p-6">
+        <Card className="bg-white shadow-sm border-l-4 border-l-green-500 text-center p-6">
           <UserCheck className="h-8 w-8 text-green-600 mx-auto mb-3" />
-          <div className="text-2xl font-bold text-green-600 mb-1">
+          <div className="text-2xl font-bold text-gray-900 mb-1">
             {users.filter(u => u.email).length}
           </div>
           <p className="text-sm text-gray-600">Verified Users</p>
         </Card>
 
-        <Card className="bg-white/90 backdrop-blur-sm border-orange-200 text-center p-6">
+        <Card className="bg-white shadow-sm border-l-4 border-l-orange-500 text-center p-6">
           <Shield className="h-8 w-8 text-orange-600 mx-auto mb-3" />
-          <div className="text-2xl font-bold text-orange-600 mb-1">
+          <div className="text-2xl font-bold text-gray-900 mb-1">
             {users.filter(u => u.is_admin).length}
           </div>
           <p className="text-sm text-gray-600">Admin Users</p>
         </Card>
 
-        <Card className="bg-white/90 backdrop-blur-sm border-blue-200 text-center p-6">
+        <Card className="bg-white shadow-sm border-l-4 border-l-blue-500 text-center p-6">
           <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-          <div className="text-2xl font-bold text-blue-600 mb-1">
+          <div className="text-2xl font-bold text-gray-900 mb-1">
             {users.filter(u => u.last_login && 
               new Date(u.last_login) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
             ).length}
@@ -128,7 +127,7 @@ export function UserManager() {
       {/* Results Summary */}
       <div className="flex justify-between items-center">
         <p className="text-gray-600">
-          Showing <span className="font-semibold text-brand-navy">{filteredUsers.length}</span> users
+          Showing <span className="font-semibold text-gray-900">{filteredUsers.length}</span> users
         </p>
       </div>
 
@@ -136,18 +135,18 @@ export function UserManager() {
       <div className="space-y-4">
         {filteredUsers.length > 0 ? (
           filteredUsers.map((user) => (
-            <Card key={user.id} className="bg-white/90 backdrop-blur-sm border-brand-blue/20">
+            <Card key={user.id} className="bg-white shadow-sm border border-gray-200">
               <CardContent className="p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-brand-blue rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-medium">
                           {user.email[0].toUpperCase()}
                         </span>
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-brand-navy">
+                        <h3 className="text-lg font-semibold text-gray-900">
                           {user.full_name || user.email}
                         </h3>
                         <p className="text-gray-600">{user.email}</p>
@@ -183,7 +182,7 @@ export function UserManager() {
 
                     {user.role && (
                       <div className="mt-2">
-                        <Badge variant="outline" className="text-xs border-brand-blue/30 text-brand-blue">
+                        <Badge variant="outline" className="text-xs border-indigo-300 text-indigo-600">
                           {user.role}
                         </Badge>
                       </div>
@@ -191,7 +190,7 @@ export function UserManager() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-4">
-                    <Button size="sm" variant="outline" className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white">
+                    <Button size="sm" variant="outline" className="border-indigo-300 text-indigo-600 hover:bg-indigo-50">
                       <Mail className="h-3 w-3 mr-1" />
                       Contact
                     </Button>
@@ -201,7 +200,7 @@ export function UserManager() {
             </Card>
           ))
         ) : (
-          <Card className="bg-white/80 backdrop-blur-sm border-brand-blue/20">
+          <Card className="bg-white shadow-sm border border-gray-200">
             <CardContent className="text-center py-12">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">No Users Found</h3>

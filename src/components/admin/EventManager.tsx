@@ -98,12 +98,11 @@ export function EventManager() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-brand-navy">Event Management</h2>
         <Button 
           onClick={() => setShowCreateModal(true)}
-          className="bg-brand-blue hover:bg-brand-navy text-white"
+          className="bg-purple-600 hover:bg-purple-700 text-white"
         >
           <Plus className="h-4 w-4 mr-2" />
           Create Event
@@ -111,9 +110,9 @@ export function EventManager() {
       </div>
 
       {/* Search and Filters */}
-      <Card className="bg-white/90 backdrop-blur-sm border-brand-blue/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-brand-navy">
+      <Card className="bg-white shadow-sm">
+        <CardHeader className="border-b border-gray-100">
+          <CardTitle className="flex items-center gap-2 text-gray-900">
             <Search className="h-5 w-5" />
             Search & Filter Events
           </CardTitle>
@@ -125,16 +124,16 @@ export function EventManager() {
               placeholder="Search events by title or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-brand-blue/20 focus:ring-brand-blue focus:border-brand-blue"
+              className="pl-10 border-gray-300 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-brand-navy">Status</label>
+            <label className="text-sm font-medium text-gray-700">Status</label>
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full p-2 border border-brand-blue/20 rounded-md focus:ring-brand-blue focus:border-brand-blue"
+              className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">All Status</option>
               <option value="upcoming">Upcoming</option>
@@ -149,9 +148,9 @@ export function EventManager() {
       {/* Results Summary */}
       <div className="flex justify-between items-center">
         <p className="text-gray-600">
-          Showing <span className="font-semibold text-brand-navy">{filteredEvents.length}</span> events
+          Showing <span className="font-semibold text-gray-900">{filteredEvents.length}</span> events
         </p>
-        <Badge variant="outline" className="text-brand-blue border-brand-blue/30">
+        <Badge variant="outline" className="text-purple-600 border-purple-300">
           {events.length} Total Events
         </Badge>
       </div>
@@ -160,12 +159,12 @@ export function EventManager() {
       <div className="space-y-4">
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => (
-            <Card key={event.id} className="bg-white/90 backdrop-blur-sm border-brand-blue/20">
+            <Card key={event.id} className="bg-white shadow-sm border border-gray-200">
               <CardContent className="p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-brand-navy">{event.title}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
                       <Badge className={getStatusColor(event.status) + " border text-xs capitalize"}>
                         {event.status}
                       </Badge>
@@ -214,13 +213,13 @@ export function EventManager() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-4">
-                    <Button size="sm" variant="outline" className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white">
+                    <Button size="sm" variant="outline" className="border-purple-300 text-purple-600 hover:bg-purple-50">
                       <Eye className="h-3 w-3" />
                     </Button>
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white"
+                      className="border-purple-300 text-purple-600 hover:bg-purple-50"
                       onClick={() => setEditingEvent(event)}
                     >
                       <Edit className="h-3 w-3" />
@@ -239,7 +238,7 @@ export function EventManager() {
             </Card>
           ))
         ) : (
-          <Card className="bg-white/80 backdrop-blur-sm border-brand-blue/20">
+          <Card className="bg-white shadow-sm border border-gray-200">
             <CardContent className="text-center py-12">
               <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">No Events Found</h3>
@@ -251,7 +250,7 @@ export function EventManager() {
               </p>
               <Button 
                 onClick={() => setShowCreateModal(true)}
-                className="bg-brand-blue hover:bg-brand-navy text-white"
+                className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Event
@@ -341,7 +340,7 @@ function EventModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-4xl bg-white max-h-[90vh] overflow-y-auto">
         <CardHeader>
-          <CardTitle className="text-brand-navy">
+          <CardTitle className="text-gray-900">
             {event ? 'Edit Event' : 'Create Event'}
           </CardTitle>
         </CardHeader>
@@ -349,7 +348,7 @@ function EventModal({
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Title</label>
+                <label className="text-sm font-medium text-gray-700">Title</label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -358,7 +357,7 @@ function EventModal({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Category</label>
+                <label className="text-sm font-medium text-gray-700">Category</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
@@ -376,7 +375,7 @@ function EventModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-navy">Description</label>
+              <label className="text-sm font-medium text-gray-700">Description</label>
               <Textarea
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
@@ -388,7 +387,7 @@ function EventModal({
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Start Date</label>
+                <label className="text-sm font-medium text-gray-700">Start Date</label>
                 <Input
                   type="date"
                   value={formData.event_date}
@@ -397,7 +396,7 @@ function EventModal({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">End Date (Optional)</label>
+                <label className="text-sm font-medium text-gray-700">End Date (Optional)</label>
                 <Input
                   type="date"
                   value={formData.end_date}
@@ -405,7 +404,7 @@ function EventModal({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Location</label>
+                <label className="text-sm font-medium text-gray-700">Location</label>
                 <Input
                   value={formData.location}
                   onChange={(e) => setFormData({...formData, location: e.target.value})}
@@ -417,7 +416,7 @@ function EventModal({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Regulator</label>
+                <label className="text-sm font-medium text-gray-700">Regulator</label>
                 <select
                   value={formData.regulator}
                   onChange={(e) => setFormData({...formData, regulator: e.target.value})}
@@ -430,7 +429,7 @@ function EventModal({
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Status</label>
+                <label className="text-sm font-medium text-gray-700">Status</label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({...formData, status: e.target.value})}
@@ -447,7 +446,7 @@ function EventModal({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Max Participants (Optional)</label>
+                <label className="text-sm font-medium text-gray-700">Max Participants (Optional)</label>
                 <Input
                   type="number"
                   value={formData.max_participants}
@@ -456,7 +455,7 @@ function EventModal({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-brand-navy">Registration URL (Optional)</label>
+                <label className="text-sm font-medium text-gray-700">Registration URL (Optional)</label>
                 <Input
                   type="url"
                   value={formData.registration_url}
@@ -467,7 +466,7 @@ function EventModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-brand-navy">Tags (comma-separated)</label>
+              <label className="text-sm font-medium text-gray-700">Tags (comma-separated)</label>
               <Input
                 value={formData.tags}
                 onChange={(e) => setFormData({...formData, tags: e.target.value})}
@@ -481,9 +480,9 @@ function EventModal({
                 id="registration_required"
                 checked={formData.registration_required}
                 onChange={(e) => setFormData({...formData, registration_required: e.target.checked})}
-                className="rounded border-brand-blue/30 text-brand-blue focus:ring-brand-blue"
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="registration_required" className="text-sm text-brand-navy">
+              <label htmlFor="registration_required" className="text-sm text-gray-700">
                 Registration Required
               </label>
             </div>
@@ -494,7 +493,7 @@ function EventModal({
               </Button>
               <Button 
                 type="submit" 
-                className="bg-brand-blue hover:bg-brand-navy text-white"
+                className="bg-purple-600 hover:bg-purple-700 text-white"
                 disabled={isSubmitting}
               >
                 <Save className="h-4 w-4 mr-2" />
