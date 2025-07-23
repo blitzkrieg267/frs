@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { ITEM_TYPES, mockSearchData } from '@/types/search'
 import { AdvancedFilters, SearchBar, SearchResultCard } from '@/components/search/SearchBar'
 import { localDB } from '@/lib/localStorage'
+import { auditLogger, AUDIT_ACTIONS } from '@/lib/auditLogger'
+import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
 
 interface Filters {
   types: string[];
@@ -18,6 +20,7 @@ interface Filters {
 }
 
 export default function AdvancedSearchEngine() {
+  const { user } = useLocalAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [filters, setFilters] = useState<Filters>({
     types: [],
@@ -172,6 +175,29 @@ export default function AdvancedSearchEngine() {
   const handleSearch = () => {
     setHasSearched(true)
     setCurrentPage(1)
+    
+    // Log search activity
+    if (user) {
+      auditLogger.log({
+        user_id: user.id,
+        user_email: user.email,
+        action: AUDIT_ACTIONS.SEARCH_PERFORMED,
+        resource_type: 'system',
+        details: `Advanced search performed with term: "${searchTerm}"`,
+        severity: 'low',
+        status: 'success',
+        metadata: {
+          search_term: searchTerm,
+          filters_applied: {
+            types: filters.types,
+            regulators: filters.regulators,
+            categories: filters.categories,
+            priorities: filters.priorities
+          },
+          results_count: filteredResults.length
+        }
+      })
+    }
   }
 
   const updateSearchOptions = (key: string, value: string) => {

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { localDB, Document } from '@/lib/localStorage'
 import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
+import { auditLogger, AUDIT_ACTIONS } from '@/lib/auditLogger'
 
 export function DocumentManager() {
   const [documents, setDocuments] = useState<Document[]>([])
@@ -51,9 +52,28 @@ export function DocumentManager() {
     if (!confirm('Are you sure you want to delete this document?')) return
 
     try {
+      const docToDelete = documents.find(doc => doc.id === id)
       const success = localDB.documents.delete(id)
       if (success) {
         setDocuments(documents.filter(doc => doc.id !== id))
+        
+        // Log document deletion
+        if (user && docToDelete) {
+          auditLogger.log({
+            user_id: user.id,
+            user_email: user.email,
+            action: AUDIT_ACTIONS.DOCUMENT_DELETE,
+            resource_type: 'document',
+            resource_id: id,
+            details: `Deleted document: ${docToDelete.title}`,
+            severity: 'high',
+            status: 'success',
+            metadata: {
+              document_type: docToDelete.type,
+              regulator: docToDelete.regulator
+            }
+          })
+        }
       } else {
         throw new Error('Document not found')
       }
@@ -303,7 +323,26 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
         priority: formData.priority as Document['priority']
       }
 
-      localDB.documents.create(documentData)
+      const newDocument = localDB.documents.create(documentData)
+      
+      // Log document creation
+      if (user) {
+        auditLogger.log({
+          user_id: user.id,
+          user_email: user.email,
+          action: AUDIT_ACTIONS.DOCUMENT_CREATE,
+          resource_type: 'document',
+          resource_id: newDocument.id,
+          details: `Created new document: ${newDocument.title}`,
+          severity: 'medium',
+          status: 'success',
+          metadata: {
+            document_type: newDocument.type,
+            regulator: newDocument.regulator,
+            category: newDocument.category
+          }
+        })
+      }
 
       onSuccess()
     } catch (error) {

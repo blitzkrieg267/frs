@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { localDB, Event } from '@/lib/localStorage'
 import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
+import { auditLogger, AUDIT_ACTIONS } from '@/lib/auditLogger'
 
 export function EventManager() {
   const [events, setEvents] = useState<Event[]>([])
@@ -51,9 +52,28 @@ export function EventManager() {
     if (!confirm('Are you sure you want to delete this event?')) return
 
     try {
+      const eventToDelete = events.find(event => event.id === id)
       const success = localDB.events.delete(id)
       if (success) {
         setEvents(events.filter(event => event.id !== id))
+        
+        // Log event deletion
+        if (user && eventToDelete) {
+          auditLogger.log({
+            user_id: user.id,
+            user_email: user.email,
+            action: AUDIT_ACTIONS.EVENT_DELETE,
+            resource_type: 'event',
+            resource_id: id,
+            details: `Deleted event: ${eventToDelete.title}`,
+            severity: 'medium',
+            status: 'success',
+            metadata: {
+              event_date: eventToDelete.event_date,
+              regulator: eventToDelete.regulator
+            }
+          })
+        }
       } else {
         throw new Error('Event not found')
       }
@@ -322,9 +342,45 @@ function EventModal({
         // Update existing event
         const updatedEvent = localDB.events.update(event.id, eventData)
         if (!updatedEvent) throw new Error('Failed to update event')
+        
+        // Log event update
+        if (user) {
+          auditLogger.log({
+            user_id: user.id,
+            user_email: user.email,
+            action: AUDIT_ACTIONS.EVENT_UPDATE,
+            resource_type: 'event',
+            resource_id: event.id,
+            details: `Updated event: ${updatedEvent.title}`,
+            severity: 'low',
+            status: 'success',
+            metadata: {
+              status_change: formData.status !== event.status ? `${event.status} -> ${formData.status}` : null
+            }
+          })
+        }
       } else {
         // Create new event
-        localDB.events.create(eventData)
+        const newEvent = localDB.events.create(eventData)
+        
+        // Log event creation
+        if (user) {
+          auditLogger.log({
+            user_id: user.id,
+            user_email: user.email,
+            action: AUDIT_ACTIONS.EVENT_CREATE,
+            resource_type: 'event',
+            resource_id: newEvent.id,
+            details: `Created event: ${newEvent.title}`,
+            severity: 'low',
+            status: 'success',
+            metadata: {
+              event_date: newEvent.event_date,
+              regulator: newEvent.regulator,
+              location: newEvent.location
+            }
+          })
+        }
       }
 
       onSuccess()

@@ -1,4 +1,6 @@
 // Local Storage Database Simulation
+import { auditLogger, AUDIT_ACTIONS } from './auditLogger'
+
 export interface Document {
   id: string
   title: string
@@ -236,6 +238,7 @@ export const localDB = {
       const index = documents.findIndex(doc => doc.id === id)
       if (index === -1) return null
 
+      const originalDocument = { ...documents[index] }
       documents[index] = {
         ...documents[index],
         ...updates,

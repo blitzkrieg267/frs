@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { localDB, NewsUpdate } from '@/lib/localStorage'
 import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
+import { auditLogger, AUDIT_ACTIONS } from '@/lib/auditLogger'
 
 export function NewsManager() {
   const [news, setNews] = useState<NewsUpdate[]>([])
@@ -50,9 +51,28 @@ export function NewsManager() {
     if (!confirm('Are you sure you want to delete this news article?')) return
 
     try {
+      const newsToDelete = news.find(item => item.id === id)
       const success = localDB.news.delete(id)
       if (success) {
         setNews(news.filter(item => item.id !== id))
+        
+        // Log news deletion
+        if (user && newsToDelete) {
+          auditLogger.log({
+            user_id: user.id,
+            user_email: user.email,
+            action: AUDIT_ACTIONS.NEWS_DELETE,
+            resource_type: 'news',
+            resource_id: id,
+            details: `Deleted news article: ${newsToDelete.title}`,
+            severity: 'medium',
+            status: 'success',
+            metadata: {
+              regulator: newsToDelete.regulator,
+              category: newsToDelete.category
+            }
+          })
+        }
       } else {
         throw new Error('News article not found')
       }
@@ -306,9 +326,45 @@ function NewsModal({
         // Update existing news
         const updatedNews = localDB.news.update(news.id, newsData)
         if (!updatedNews) throw new Error('Failed to update news')
+        
+        // Log news update
+        if (user) {
+          auditLogger.log({
+            user_id: user.id,
+            user_email: user.email,
+            action: AUDIT_ACTIONS.NEWS_UPDATE,
+            resource_type: 'news',
+            resource_id: news.id,
+            details: `Updated news article: ${updatedNews.title}`,
+            severity: 'low',
+            status: 'success',
+            metadata: {
+              status_change: formData.status !== news.status ? `${news.status} -> ${formData.status}` : null
+            }
+          })
+        }
       } else {
         // Create new news
-        localDB.news.create(newsData)
+        const newNews = localDB.news.create(newsData)
+        
+        // Log news creation
+        if (user) {
+          auditLogger.log({
+            user_id: user.id,
+            user_email: user.email,
+            action: AUDIT_ACTIONS.NEWS_CREATE,
+            resource_type: 'news',
+            resource_id: newNews.id,
+            details: `Created news article: ${newNews.title}`,
+            severity: 'low',
+            status: 'success',
+            metadata: {
+              regulator: newNews.regulator,
+              category: newNews.category,
+              status: newNews.status
+            }
+          })
+        }
       }
 
       onSuccess()

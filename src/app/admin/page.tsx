@@ -25,9 +25,11 @@ import { DocumentManager } from '@/components/admin/DocumentManager'
 import { NewsManager } from '@/components/admin/NewsManager'
 import { EventManager } from '@/components/admin/EventManager'
 import { UserManager } from '@/components/admin/UserManager'
+import { AuditLogsManager } from '@/components/admin/AuditLogsManager'
 import { localDB } from '@/lib/localStorage'
+import { auditLogger, AUDIT_ACTIONS } from '@/lib/auditLogger'
 
-type AdminView = 'dashboard' | 'documents' | 'news' | 'events' | 'users' | 'settings'
+type AdminView = 'dashboard' | 'documents' | 'news' | 'events' | 'users' | 'audit' | 'settings'
 
 export default function AdminDashboard() {
   const { user, isAdmin, isLoading } = useLocalAuth()
@@ -49,8 +51,21 @@ export default function AdminDashboard() {
         events: localDB.events.getAll().length,
         users: localDB.users.getAll().length
       })
+      
+      // Log admin access
+      if (user) {
+        auditLogger.log({
+          user_id: user.id,
+          user_email: user.email,
+          action: AUDIT_ACTIONS.ADMIN_ACCESS,
+          resource_type: 'system',
+          details: `Admin user accessed admin dashboard`,
+          severity: 'low',
+          status: 'success'
+        })
+      }
     }
-  }, [])
+  }, [user])
 
   if (isLoading) {
     return (
@@ -91,6 +106,7 @@ export default function AdminDashboard() {
     { id: 'news', label: 'News & Updates', icon: Newspaper, color: 'text-orange-600' },
     { id: 'events', label: 'Events', icon: Calendar, color: 'text-purple-600' },
     { id: 'users', label: 'Users', icon: Users, color: 'text-indigo-600' },
+    { id: 'audit', label: 'Audit Logs', icon: Shield, color: 'text-red-600' },
     { id: 'settings', label: 'Settings', icon: Settings, color: 'text-gray-600' },
   ]
 
@@ -104,6 +120,8 @@ export default function AdminDashboard() {
         return <EventManager />
       case 'users':
         return <UserManager />
+      case 'audit':
+        return <AuditLogsManager />
       case 'settings':
         return <AdminSettings />
       default:

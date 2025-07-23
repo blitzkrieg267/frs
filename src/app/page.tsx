@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { localDB } from '@/lib/localStorage'
+import { auditLogger, AUDIT_ACTIONS } from '@/lib/auditLogger'
+import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
 
 const regulators = ["All", "Bank of Botswana", "NBFIRA", "FIA"]
 const documentTypes = ["All", "Act", "Regulation", "Policy", "Rule", "Directive", "Guideline"]
@@ -13,6 +15,7 @@ const categories = ["All", "Banking", "Insurance", "Microfinance", "Payments", "
 
 
 export default function Home() {
+  const { user } = useLocalAuth()
   const [documents, setDocuments] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRegulator, setSelectedRegulator] = useState("All")
@@ -39,8 +42,42 @@ export default function Home() {
         status: "Current"
       }))
       setDocuments(transformedDocs)
+      
+      // Log search activity if user is logged in
+      if (user) {
+        auditLogger.log({
+          user_id: user.id,
+          user_email: user.email,
+          action: 'page_visit',
+          resource_type: 'system',
+          details: `User visited home page and loaded ${docs.length} documents`,
+          severity: 'low',
+          status: 'success'
+        })
+      }
     }
-  }, [])
+  }, [user])
+
+  // Log search activity
+  const handleSearch = (term: string) => {
+    setSearchTerm(term)
+    
+    if (user && term.length > 2) {
+      auditLogger.log({
+        user_id: user.id,
+        user_email: user.email,
+        action: AUDIT_ACTIONS.SEARCH_PERFORMED,
+        resource_type: 'system',
+        details: `User searched for: "${term}"`,
+        severity: 'low',
+        status: 'success',
+        metadata: {
+          search_term: term,
+          results_count: filteredDocuments.length
+        }
+      })
+    }
+  }
 
   const filteredDocuments = useMemo(() => {
     return documents.filter(doc => {
@@ -110,7 +147,7 @@ export default function Home() {
               <Input
                 placeholder="Search by title, description, or tags..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearch(e.target.value)}
                 className="pl-10 border-brand-blue/20 focus:ring-brand-blue focus:border-brand-blue"
               />
             </div>
