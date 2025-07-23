@@ -1,0 +1,185 @@
+"use client"
+
+import { useState } from "react"
+import { useAuth } from "./auth/AuthProvider"
+import { LogOut, Menu, Shield, X } from "lucide-react"
+import { USER_ROLES } from "@/lib/constants"
+import { Button } from "./ui/button"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
+
+export function AppHeader() {
+  const { user, isAuthenticated, logout } = useAuth()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const router = useRouter()
+
+  const handleNavigation = (view: string) => {
+    router.push(view)
+  }
+
+  return (
+    <header className="bg-white/90 backdrop-blur-sm border-b border-brand-blue/20 sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleNavigation('/')}>
+            <Image
+              src="/images.png"
+              alt="Logo"
+              width={32}
+              height={32}
+              className="h-8 w-8"
+            />
+            <div>
+              <h1 className="text-lg font-bold text-brand-navy">FSRF Botswana</h1>
+              <p className="text-xs text-gray-500 hidden sm:block">Financial Regulatory Platform</p>
+            </div>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <button
+              onClick={() => handleNavigation('/')}
+              className="text-gray-600 hover:text-brand-blue transition-colors"
+            >
+              Home
+            </button>
+            <button
+              onClick={() => handleNavigation('/search')}
+              className="text-gray-600 hover:text-brand-blue transition-colors"
+            >
+              Search
+            </button>
+            <button
+              onClick={() => handleNavigation('/licensing')}
+              className="text-gray-600 hover:text-brand-blue transition-colors"
+            >
+              Licensing
+            </button>
+            <button
+              onClick={() => handleNavigation('/requirements')}
+              className="text-gray-600 hover:text-brand-blue transition-colors"
+            >
+              Requirements
+            </button>
+            {isAuthenticated && (
+              <>
+                <button
+                  onClick={() => handleNavigation('/profile')}
+                  className="text-gray-600 hover:text-brand-blue transition-colors"
+                >
+                  Profile
+                </button>
+              </>
+            )}
+          </nav>
+
+          {/* User Actions */}
+          <div className="flex items-center space-x-4">
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                {/* User Info */}
+                <div className="hidden sm:block text-right">
+                  <p className="text-sm font-medium text-brand-navy">{user?.name}</p>
+                  <p className="text-xs text-gray-500">{USER_ROLES[user?.role || 'PUBLIC'].name}</p>
+                </div>
+
+                {/* User Avatar */}
+                <div className="w-8 h-8 bg-brand-blue rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">
+                    {user?.firstName?.[0]}{user?.lastName?.[0]}
+                  </span>
+                </div>
+
+                {/* Logout Button */}
+                <Button
+                  onClick={logout}
+                  variant="outline"
+                  size="sm"
+                  className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Button
+                  onClick={() => handleNavigation('/profile')}
+                  variant="outline"
+                  size="sm"
+                  className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  onClick={() => handleNavigation('/auth/register')}
+                  size="sm"
+                  className="hover:bg-brand-navy text-white"
+                >
+                  Register
+                </Button>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 text-gray-600 hover:text-brand-blue"
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t border-gray-200">
+            <nav className="flex flex-col space-y-2">
+              <button
+                onClick={() => {
+                  handleNavigation('landing')
+                  setIsMenuOpen(false)
+                }}
+                className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
+              >
+                Home
+              </button>
+              <button
+                onClick={() => {
+                  handleNavigation('documents')
+                  setIsMenuOpen(false)
+                }}
+                className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
+              >
+                Documents
+              </button>
+              {isAuthenticated && (
+                <>
+                  <button
+                    onClick={() => {
+                      handleNavigation('licensing')
+                      setIsMenuOpen(false)
+                    }}
+                    className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
+                  >
+                    Licensing
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleNavigation('profile')
+                      setIsMenuOpen(false)
+                    }}
+                    className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
+                  >
+                    Profile
+                  </button>
+                </>
+              )}
+            </nav>
+          </div>
+        )}
+      </div>
+    </header>
+  )
+}
