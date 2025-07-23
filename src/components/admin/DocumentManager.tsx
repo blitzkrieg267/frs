@@ -17,8 +17,8 @@ import {
   Eye,
   MoreVertical
 } from 'lucide-react'
-import { supabase, Document } from '@/lib/supabase'
-import { useSupabaseAuth } from '@/components/auth/SupabaseAuthProvider'
+import { localDB, Document } from '@/lib/localStorage'
+import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
 
 export function DocumentManager() {
   const [documents, setDocuments] = useState<Document[]>([])
@@ -27,7 +27,7 @@ export function DocumentManager() {
   const [selectedType, setSelectedType] = useState('all')
   const [selectedRegulator, setSelectedRegulator] = useState('all')
   const [showUploadModal, setShowUploadModal] = useState(false)
-  const { user } = useSupabaseAuth()
+  const { user } = useLocalAuth()
 
   useEffect(() => {
     fetchDocuments()
@@ -35,16 +35,12 @@ export function DocumentManager() {
 
   const fetchDocuments = async () => {
     try {
-      const { data, error } = await supabase
-        .from('documents')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setDocuments(data || [])
+      const data = localDB.documents.getAll()
+      // Sort by created_at descending
+      const sortedData = data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      setDocuments(sortedData)
     } catch (error) {
       console.error('Error fetching documents:', error)
-      // For now, use mock data if Supabase isn't connected
       setDocuments([])
     } finally {
       setIsLoading(false)
@@ -55,14 +51,12 @@ export function DocumentManager() {
     if (!confirm('Are you sure you want to delete this document?')) return
 
     try {
-      const { error } = await supabase
-        .from('documents')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
-      
-      setDocuments(documents.filter(doc => doc.id !== id))
+      const success = localDB.documents.delete(id)
+      if (success) {
+        setDocuments(documents.filter(doc => doc.id !== id))
+      } else {
+        throw new Error('Document not found')
+      }
     } catch (error) {
       console.error('Error deleting document:', error)
       alert('Error deleting document. Please try again.')
@@ -293,7 +287,7 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
     status: 'active'
   })
   const [isUploading, setIsUploading] = useState(false)
-  const { user } = useSupabaseAuth()
+  const { user } = useLocalAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -304,14 +298,13 @@ function DocumentUploadModal({ onClose, onSuccess }: { onClose: () => void; onSu
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
         entity_types: ['All Financial Institutions'], // Default for now
-        created_by: user?.id || 'unknown'
+        created_by: user?.id || 'unknown',
+        type: formData.type as Document['type'],
+        status: formData.status as Document['status'],
+        priority: formData.priority as Document['priority']
       }
 
-      const { error } = await supabase
-        .from('documents')
-        .insert([documentData])
-
-      if (error) throw error
+      localDB.documents.create(documentData)
 
       onSuccess()
     } catch (error) {

@@ -1,14 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { useSupabaseAuth } from "./auth/SupabaseAuthProvider"
+import { useLocalAuth } from "./auth/LocalAuthProvider"
 import { LogOut, Menu, Shield, X } from "lucide-react"
 import { Button } from "./ui/button"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 
 export function AppHeader() {
-  const { user, session, signOut, isAdmin } = useSupabaseAuth()
+  const { user, signOut, isAdmin } = useLocalAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const router = useRouter()
 
@@ -65,7 +65,7 @@ export function AppHeader() {
             >
               Requirements
             </button>
-            {session && (
+            {user && (
               <>
                 <button
                   onClick={() => handleNavigation('/profile')}
@@ -76,7 +76,16 @@ export function AppHeader() {
                 {isAdmin && (
                   <button
                     onClick={() => handleNavigation('/admin')}
-                    className="text-gray-600 hover:text-brand-blue transition-colors flex items-center gap-1"
+                <button
+                  onClick={() => {
+                    handleNavigation('/requirements')
+                    setIsMenuOpen(false)
+                  }}
+                  className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
+                >
+                  Requirements
+                </button>
+                <button
                   >
                     <Shield className="h-4 w-4" />
                     Admin
@@ -88,7 +97,7 @@ export function AppHeader() {
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
-            {session ? (
+            {user ? (
               <div className="flex items-center space-x-3">
                 {/* User Info */}
                 <div className="hidden sm:block text-right">
@@ -186,7 +195,7 @@ export function AppHeader() {
                   >
                     Profile
                   </button>
-                  {isAdmin && (
+                {isAdmin && (
                     <button
                       onClick={() => {
                         handleNavigation('/admin')
@@ -198,8 +207,8 @@ export function AppHeader() {
                       Admin
                     </button>
                   )}
-                </>
-              )}
+              </>
+            )}
             </nav>
           </div>
         )}

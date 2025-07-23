@@ -17,8 +17,8 @@ import {
   Users,
   Save
 } from 'lucide-react'
-import { supabase, Event } from '@/lib/supabase'
-import { useSupabaseAuth } from '@/components/auth/SupabaseAuthProvider'
+import { localDB, Event } from '@/lib/localStorage'
+import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
 
 export function EventManager() {
   const [events, setEvents] = useState<Event[]>([])
@@ -27,7 +27,7 @@ export function EventManager() {
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
-  const { user } = useSupabaseAuth()
+  const { user } = useLocalAuth()
 
   useEffect(() => {
     fetchEvents()
@@ -35,13 +35,10 @@ export function EventManager() {
 
   const fetchEvents = async () => {
     try {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .order('event_date', { ascending: true })
-
-      if (error) throw error
-      setEvents(data || [])
+      const data = localDB.events.getAll()
+      // Sort by event_date ascending
+      const sortedData = data.sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+      setEvents(sortedData)
     } catch (error) {
       console.error('Error fetching events:', error)
       setEvents([])
@@ -54,14 +51,12 @@ export function EventManager() {
     if (!confirm('Are you sure you want to delete this event?')) return
 
     try {
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
-      
-      setEvents(events.filter(event => event.id !== id))
+      const success = localDB.events.delete(id)
+      if (success) {
+        setEvents(events.filter(event => event.id !== id))
+      } else {
+        throw new Error('Event not found')
+      }
     } catch (error) {
       console.error('Error deleting event:', error)
       alert('Error deleting event. Please try again.')
@@ -309,7 +304,7 @@ function EventModal({
     max_participants: event?.max_participants?.toString() || ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useSupabaseAuth()
+  const { user } = useLocalAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -319,25 +314,18 @@ function EventModal({
       const eventData = {
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        max_participants: formData.max_participants ? parseInt(formData.max_participants) : null,
-        created_by: user?.id || 'unknown'
+        max_participants: formData.max_participants ? parseInt(formData.max_participants) : undefined,
+        created_by: user?.id || 'unknown',
+        status: formData.status as Event['status']
       }
 
       if (event) {
         // Update existing event
-        const { error } = await supabase
-          .from('events')
-          .update(eventData)
-          .eq('id', event.id)
-
-        if (error) throw error
+        const updatedEvent = localDB.events.update(event.id, eventData)
+        if (!updatedEvent) throw new Error('Failed to update event')
       } else {
         // Create new event
-        const { error } = await supabase
-          .from('events')
-          .insert([eventData])
-
-        if (error) throw error
+        localDB.events.create(eventData)
       }
 
       onSuccess()

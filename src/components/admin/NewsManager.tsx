@@ -16,8 +16,8 @@ import {
   Calendar,
   Save
 } from 'lucide-react'
-import { supabase, NewsUpdate } from '@/lib/supabase'
-import { useSupabaseAuth } from '@/components/auth/SupabaseAuthProvider'
+import { localDB, NewsUpdate } from '@/lib/localStorage'
+import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
 
 export function NewsManager() {
   const [news, setNews] = useState<NewsUpdate[]>([])
@@ -26,7 +26,7 @@ export function NewsManager() {
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingNews, setEditingNews] = useState<NewsUpdate | null>(null)
-  const { user } = useSupabaseAuth()
+  const { user } = useLocalAuth()
 
   useEffect(() => {
     fetchNews()
@@ -34,13 +34,10 @@ export function NewsManager() {
 
   const fetchNews = async () => {
     try {
-      const { data, error } = await supabase
-        .from('news_updates')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setNews(data || [])
+      const data = localDB.news.getAll()
+      // Sort by created_at descending
+      const sortedData = data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      setNews(sortedData)
     } catch (error) {
       console.error('Error fetching news:', error)
       setNews([])
@@ -53,14 +50,12 @@ export function NewsManager() {
     if (!confirm('Are you sure you want to delete this news article?')) return
 
     try {
-      const { error } = await supabase
-        .from('news_updates')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
-      
-      setNews(news.filter(item => item.id !== id))
+      const success = localDB.news.delete(id)
+      if (success) {
+        setNews(news.filter(item => item.id !== id))
+      } else {
+        throw new Error('News article not found')
+      }
     } catch (error) {
       console.error('Error deleting news:', error)
       alert('Error deleting news article. Please try again.')
@@ -292,7 +287,7 @@ function NewsModal({
     status: news?.status || 'draft'
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useSupabaseAuth()
+  const { user } = useLocalAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -303,24 +298,18 @@ function NewsModal({
         ...formData,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
         created_by: user?.id || 'unknown',
-        published_at: formData.status === 'published' ? new Date().toISOString() : null
+        published_at: formData.status === 'published' ? new Date().toISOString() : undefined,
+        status: formData.status as NewsUpdate['status'],
+        priority: formData.priority as NewsUpdate['priority']
       }
 
       if (news) {
         // Update existing news
-        const { error } = await supabase
-          .from('news_updates')
-          .update(newsData)
-          .eq('id', news.id)
-
-        if (error) throw error
+        const updatedNews = localDB.news.update(news.id, newsData)
+        if (!updatedNews) throw new Error('Failed to update news')
       } else {
         // Create new news
-        const { error } = await supabase
-          .from('news_updates')
-          .insert([newsData])
-
-        if (error) throw error
+        localDB.news.create(newsData)
       }
 
       onSuccess()

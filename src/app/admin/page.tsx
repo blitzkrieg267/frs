@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { useSupabaseAuth } from '@/components/auth/SupabaseAuthProvider'
+import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -22,13 +22,31 @@ import { DocumentManager } from '@/components/admin/DocumentManager'
 import { NewsManager } from '@/components/admin/NewsManager'
 import { EventManager } from '@/components/admin/EventManager'
 import { UserManager } from '@/components/admin/UserManager'
-import { AdminLogin } from '@/components/admin/AdminLogin'
+import { localDB } from '@/lib/localStorage'
 
 type AdminView = 'dashboard' | 'documents' | 'news' | 'events' | 'users' | 'settings'
 
 export default function AdminDashboard() {
-  const { user, isAdmin, isLoading } = useSupabaseAuth()
+  const { user, isAdmin, isLoading } = useLocalAuth()
   const [currentView, setCurrentView] = useState<AdminView>('dashboard')
+  const [stats, setStats] = useState({
+    documents: 0,
+    news: 0,
+    events: 0,
+    users: 0
+  })
+
+  // Load stats when component mounts
+  useState(() => {
+    if (typeof window !== 'undefined') {
+      setStats({
+        documents: localDB.documents.getAll().length,
+        news: localDB.news.getAll().length,
+        events: localDB.events.getAll().length,
+        users: localDB.users.getAll().length
+      })
+    }
+  })
 
   if (isLoading) {
     return (
@@ -44,7 +62,23 @@ export default function AdminDashboard() {
   }
 
   if (!user || !isAdmin) {
-    return <AdminLogin />
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-brand-cream to-brand-light-blue flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-white/90 backdrop-blur-sm border-brand-blue/20">
+          <CardContent className="text-center py-12">
+            <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">Admin Access Required</h3>
+            <p className="text-gray-500 mb-4">Please sign in with an admin account to access this area.</p>
+            <Button
+              onClick={() => window.location.href = '/auth/login'}
+              className="bg-brand-blue hover:bg-brand-navy text-white"
+            >
+              Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   const navigationItems = [
@@ -143,6 +177,24 @@ export default function AdminDashboard() {
 }
 
 function AdminDashboardContent() {
+  const [stats, setStats] = useState({
+    documents: 0,
+    news: 0,
+    events: 0,
+    users: 0
+  })
+
+  useState(() => {
+    if (typeof window !== 'undefined') {
+      setStats({
+        documents: localDB.documents.getAll().length,
+        news: localDB.news.getAll().length,
+        events: localDB.events.getAll().length,
+        users: localDB.users.getAll().length
+      })
+    }
+  })
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -157,25 +209,25 @@ function AdminDashboardContent() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="bg-white/90 backdrop-blur-sm border-brand-blue/20 text-center p-6">
           <FileText className="h-8 w-8 text-brand-blue mx-auto mb-3" />
-          <div className="text-2xl font-bold text-brand-blue mb-1">156</div>
+          <div className="text-2xl font-bold text-brand-blue mb-1">{stats.documents}</div>
           <p className="text-sm text-gray-600">Total Documents</p>
         </Card>
 
         <Card className="bg-white/90 backdrop-blur-sm border-green-200 text-center p-6">
           <Newspaper className="h-8 w-8 text-green-600 mx-auto mb-3" />
-          <div className="text-2xl font-bold text-green-600 mb-1">23</div>
+          <div className="text-2xl font-bold text-green-600 mb-1">{stats.news}</div>
           <p className="text-sm text-gray-600">News Articles</p>
         </Card>
 
         <Card className="bg-white/90 backdrop-blur-sm border-purple-200 text-center p-6">
           <Calendar className="h-8 w-8 text-purple-600 mx-auto mb-3" />
-          <div className="text-2xl font-bold text-purple-600 mb-1">8</div>
+          <div className="text-2xl font-bold text-purple-600 mb-1">{stats.events}</div>
           <p className="text-sm text-gray-600">Upcoming Events</p>
         </Card>
 
         <Card className="bg-white/90 backdrop-blur-sm border-orange-200 text-center p-6">
           <Users className="h-8 w-8 text-orange-600 mx-auto mb-3" />
-          <div className="text-2xl font-bold text-orange-600 mb-1">1,247</div>
+          <div className="text-2xl font-bold text-orange-600 mb-1">{stats.users}</div>
           <p className="text-sm text-gray-600">Registered Users</p>
         </Card>
       </div>
@@ -188,17 +240,13 @@ function AdminDashboardContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { title: 'Banking Act Amendment 2024', type: 'Act', date: '2024-03-15' },
-                { title: 'AML Guidelines Update', type: 'Guideline', date: '2024-03-10' },
-                { title: 'Insurance Regulations', type: 'Regulation', date: '2024-03-08' }
-              ].map((doc, index) => (
+              {localDB.documents.getAll().slice(0, 3).map((doc, index) => (
                 <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-brand-navy">{doc.title}</p>
-                    <p className="text-sm text-gray-600">{doc.type}</p>
+                    <p className="text-sm text-gray-600 capitalize">{doc.type}</p>
                   </div>
-                  <p className="text-xs text-gray-500">{doc.date}</p>
+                  <p className="text-xs text-gray-500">{new Date(doc.updated_at).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>
@@ -211,17 +259,13 @@ function AdminDashboardContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {[
-                { action: 'Document uploaded', user: 'admin@bob.bw', time: '2 hours ago' },
-                { action: 'News article published', user: 'editor@nbfira.bw', time: '4 hours ago' },
-                { action: 'Event created', user: 'admin@fia.bw', time: '1 day ago' }
-              ].map((activity, index) => (
+              {localDB.news.getAll().slice(0, 3).map((activity, index) => (
                 <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <div>
-                    <p className="font-medium text-brand-navy">{activity.action}</p>
-                    <p className="text-sm text-gray-600">{activity.user}</p>
+                    <p className="font-medium text-brand-navy">News: {activity.title}</p>
+                    <p className="text-sm text-gray-600">{activity.regulator}</p>
                   </div>
-                  <p className="text-xs text-gray-500">{activity.time}</p>
+                  <p className="text-xs text-gray-500">{new Date(activity.created_at).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>

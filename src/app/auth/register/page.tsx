@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { useSupabaseAuth } from '@/components/auth/SupabaseAuthProvider'
+import { useLocalAuth } from '@/components/auth/LocalAuthProvider'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,7 +20,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { signUp } = useSupabaseAuth()
+  const { signUp } = useLocalAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ITEM_TYPES, mockSearchData } from '@/types/search'
 import { AdvancedFilters, SearchBar, SearchResultCard } from '@/components/search/SearchBar'
+import { localDB } from '@/lib/localStorage'
 
 interface Filters {
   types: string[];
@@ -36,9 +37,77 @@ export default function AdvancedSearchEngine() {
   const [currentPage, setCurrentPage] = useState(1)
   const [hasSearched, setHasSearched] = useState(false)
 
+  // Initialize local database
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localDB.init()
+    }
+  }, [])
+
   // Search and filter logic
   const filteredResults = useMemo(() => {
-    let results = mockSearchData
+    // Get data from local storage and transform to search format
+    let results: any[] = []
+    
+    if (typeof window !== 'undefined') {
+      const documents = localDB.documents.getAll().map(doc => ({
+        id: doc.id,
+        type: 'document',
+        title: doc.title,
+        description: doc.description,
+        regulator: doc.regulator,
+        category: doc.category,
+        tags: doc.tags,
+        datePublished: doc.created_at.split('T')[0],
+        lastUpdated: doc.updated_at.split('T')[0],
+        fileSize: doc.file_size,
+        fileType: 'PDF',
+        priority: doc.priority.charAt(0).toUpperCase() + doc.priority.slice(1),
+        status: doc.status.charAt(0).toUpperCase() + doc.status.slice(1),
+        popularity: 85,
+        entityTypes: doc.entity_types,
+        isNew: false,
+        isTrending: false
+      }))
+
+      const news = localDB.news.getAll().map(item => ({
+        id: item.id,
+        type: 'news',
+        title: item.title,
+        description: item.summary,
+        regulator: item.regulator,
+        category: item.category,
+        tags: item.tags,
+        datePublished: item.created_at.split('T')[0],
+        lastUpdated: item.updated_at.split('T')[0],
+        priority: item.priority.charAt(0).toUpperCase() + item.priority.slice(1),
+        status: item.status.charAt(0).toUpperCase() + item.status.slice(1),
+        popularity: 75,
+        entityTypes: ['All Financial Institutions'],
+        isNew: item.status === 'published',
+        isTrending: true
+      }))
+
+      const events = localDB.events.getAll().map(event => ({
+        id: event.id,
+        type: 'event',
+        title: event.title,
+        description: event.description,
+        regulator: event.regulator,
+        category: event.category,
+        tags: event.tags,
+        datePublished: event.created_at.split('T')[0],
+        lastUpdated: event.updated_at.split('T')[0],
+        priority: 'Medium',
+        status: event.status.charAt(0).toUpperCase() + event.status.slice(1),
+        popularity: 65,
+        entityTypes: ['All Financial Institutions'],
+        isNew: false,
+        isTrending: false
+      }))
+
+      results = [...documents, ...news, ...events]
+    }
 
     // Text search
     if (searchTerm) {
@@ -335,7 +404,7 @@ export default function AdvancedSearchEngine() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
                   {ITEM_TYPES.map(type => {
                     const Icon = type.icon
-                    const totalCount = mockSearchData.filter(item => item.type === type.id).length
+                    const totalCount = results.filter(item => item.type === type.id).length
                     return (
                       <Card
                         key={type.id}

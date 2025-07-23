@@ -5,81 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-
-const mockDocuments = [
-  {
-    id: 1,
-    title: "Banking Act",
-    type: "Act",
-    regulator: "Bank of Botswana",
-    category: "Banking",
-    lastUpdated: "2024-01-15",
-    description: "Primary legislation governing banking operations in Botswana",
-    documentUrl: "#",
-    tags: ["banking", "licensing", "capital requirements"],
-    status: "Current"
-  },
-  {
-    id: 2,
-    title: "Insurance Industry Act",
-    type: "Act",
-    regulator: "NBFIRA",
-    category: "Insurance",
-    lastUpdated: "2023-12-10",
-    description: "Comprehensive framework for insurance companies and intermediaries",
-    documentUrl: "#",
-    tags: ["insurance", "licensing", "solvency"],
-    status: "Current"
-  },
-  {
-    id: 3,
-    title: "Anti-Money Laundering Guidelines",
-    type: "Guideline",
-    regulator: "FIA",
-    category: "Compliance",
-    lastUpdated: "2024-02-20",
-    description: "Guidelines for preventing money laundering and terrorist financing",
-    documentUrl: "#",
-    tags: ["AML", "compliance", "reporting"],
-    status: "Current"
-  },
-  {
-    id: 4,
-    title: "Microfinance Regulations",
-    type: "Regulation",
-    regulator: "NBFIRA",
-    category: "Microfinance",
-    lastUpdated: "2023-11-05",
-    description: "Regulatory framework for microfinance institutions",
-    documentUrl: "#",
-    tags: ["microfinance", "licensing", "consumer protection"],
-    status: "Current"
-  },
-  {
-    id: 5,
-    title: "Payment Systems Directive",
-    type: "Directive",
-    regulator: "Bank of Botswana",
-    category: "Payments",
-    lastUpdated: "2024-01-30",
-    description: "Directive on electronic payment systems and digital financial services",
-    documentUrl: "#",
-    tags: ["payments", "digital", "fintech"],
-    status: "Current"
-  },
-  {
-    id: 6,
-    title: "Asset Management Rules",
-    type: "Rule",
-    regulator: "NBFIRA",
-    category: "Asset Management",
-    lastUpdated: "2023-10-12",
-    description: "Rules governing collective investment schemes and asset managers",
-    documentUrl: "#",
-    tags: ["asset management", "investment", "licensing"],
-    status: "Current"
-  }
-]
+import { localDB } from '@/lib/localStorage'
 
 const regulators = ["All", "Bank of Botswana", "NBFIRA", "FIA"]
 const documentTypes = ["All", "Act", "Regulation", "Policy", "Rule", "Directive", "Guideline"]
@@ -87,14 +13,37 @@ const categories = ["All", "Banking", "Insurance", "Microfinance", "Payments", "
 
 
 export default function Home() {
+  const [documents, setDocuments] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRegulator, setSelectedRegulator] = useState("All")
   const [selectedType, setSelectedType] = useState("All")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [expandedCard, setExpandedCard] = useState<number | null>(null)
 
+  // Load documents on component mount
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localDB.init()
+      const docs = localDB.documents.getAll()
+      // Transform to match the expected format
+      const transformedDocs = docs.map(doc => ({
+        id: doc.id,
+        title: doc.title,
+        type: doc.type.charAt(0).toUpperCase() + doc.type.slice(1),
+        regulator: doc.regulator,
+        category: doc.category,
+        lastUpdated: doc.updated_at.split('T')[0],
+        description: doc.description,
+        documentUrl: doc.file_url || "#",
+        tags: doc.tags,
+        status: "Current"
+      }))
+      setDocuments(transformedDocs)
+    }
+  }, [])
+
   const filteredDocuments = useMemo(() => {
-    return mockDocuments.filter(doc => {
+    return documents.filter(doc => {
       const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         doc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         doc.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -105,7 +54,7 @@ export default function Home() {
 
       return matchesSearch && matchesRegulator && matchesType && matchesCategory
     })
-  }, [searchTerm, selectedRegulator, selectedType, selectedCategory])
+  }, [documents, searchTerm, selectedRegulator, selectedType, selectedCategory])
 
   const getTypeColor = (type: string) => {
     const colors: Record<string, string> = {
@@ -328,7 +277,7 @@ export default function Home() {
           <Card className="bg-white/80 backdrop-blur-sm border-brand-blue/20">
             <CardContent className="text-center py-6">
               <div className="text-3xl font-bold text-brand-blue mb-2">
-                {mockDocuments.filter(d => d.regulator === "Bank of Botswana").length}
+                {documents.filter(d => d.regulator === "Bank of Botswana").length}
               </div>
               <p className="text-gray-600">Bank of Botswana Documents</p>
             </CardContent>
@@ -337,7 +286,7 @@ export default function Home() {
           <Card className="bg-white/80 backdrop-blur-sm border-brand-blue/20">
             <CardContent className="text-center py-6">
               <div className="text-3xl font-bold text-brand-blue mb-2">
-                {mockDocuments.filter(d => d.regulator === "NBFIRA").length}
+                {documents.filter(d => d.regulator === "NBFIRA").length}
               </div>
               <p className="text-gray-600">NBFIRA Documents</p>
             </CardContent>
@@ -346,7 +295,7 @@ export default function Home() {
           <Card className="bg-white/80 backdrop-blur-sm border-brand-blue/20">
             <CardContent className="text-center py-6">
               <div className="text-3xl font-bold text-brand-blue mb-2">
-                {mockDocuments.filter(d => d.regulator === "FIA").length}
+                {documents.filter(d => d.regulator === "Financial Intelligence Agency").length}
               </div>
               <p className="text-gray-600">FIA Documents</p>
             </CardContent>

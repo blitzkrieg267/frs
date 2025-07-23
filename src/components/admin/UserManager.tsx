@@ -15,27 +15,10 @@ import {
   UserCheck,
   UserX
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
-
-interface UserProfile {
-  id: string
-  email: string
-  created_at: string
-  last_sign_in_at?: string
-  email_confirmed_at?: string
-  user_metadata?: {
-    full_name?: string
-    company?: string
-    role?: string
-  }
-  app_metadata?: {
-    provider?: string
-    providers?: string[]
-  }
-}
+import { localDB, User } from '@/lib/localStorage'
 
 export function UserManager() {
-  const [users, setUsers] = useState<UserProfile[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -45,40 +28,11 @@ export function UserManager() {
 
   const fetchUsers = async () => {
     try {
-      // Note: This requires service role key and should be done server-side in production
-      const { data, error } = await supabase.auth.admin.listUsers()
-
-      if (error) throw error
-      setUsers(data.users || [])
+      const data = localDB.users.getAll()
+      setUsers(data)
     } catch (error) {
       console.error('Error fetching users:', error)
-      // For demo purposes, show mock data if admin access isn't available
-      setUsers([
-        {
-          id: '1',
-          email: 'admin@bob.bw',
-          created_at: '2024-01-15T10:00:00Z',
-          last_sign_in_at: '2024-03-15T14:30:00Z',
-          email_confirmed_at: '2024-01-15T10:05:00Z',
-          user_metadata: {
-            full_name: 'Admin User',
-            company: 'Bank of Botswana',
-            role: 'Administrator'
-          }
-        },
-        {
-          id: '2',
-          email: 'user@nbfira.bw',
-          created_at: '2024-02-01T09:00:00Z',
-          last_sign_in_at: '2024-03-14T16:20:00Z',
-          email_confirmed_at: '2024-02-01T09:05:00Z',
-          user_metadata: {
-            full_name: 'NBFIRA User',
-            company: 'NBFIRA',
-            role: 'Regulator'
-          }
-        }
-      ])
+      setUsers([])
     } finally {
       setIsLoading(false)
     }
@@ -86,8 +40,8 @@ export function UserManager() {
 
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.user_metadata?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.user_metadata?.company?.toLowerCase().includes(searchTerm.toLowerCase())
+    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.company?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   if (isLoading) {
@@ -147,7 +101,7 @@ export function UserManager() {
         <Card className="bg-white/90 backdrop-blur-sm border-green-200 text-center p-6">
           <UserCheck className="h-8 w-8 text-green-600 mx-auto mb-3" />
           <div className="text-2xl font-bold text-green-600 mb-1">
-            {users.filter(u => u.email_confirmed_at).length}
+            {users.filter(u => u.email).length}
           </div>
           <p className="text-sm text-gray-600">Verified Users</p>
         </Card>
@@ -155,7 +109,7 @@ export function UserManager() {
         <Card className="bg-white/90 backdrop-blur-sm border-orange-200 text-center p-6">
           <Shield className="h-8 w-8 text-orange-600 mx-auto mb-3" />
           <div className="text-2xl font-bold text-orange-600 mb-1">
-            {users.filter(u => u.email.includes('admin')).length}
+            {users.filter(u => u.is_admin).length}
           </div>
           <p className="text-sm text-gray-600">Admin Users</p>
         </Card>
@@ -163,8 +117,8 @@ export function UserManager() {
         <Card className="bg-white/90 backdrop-blur-sm border-blue-200 text-center p-6">
           <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-3" />
           <div className="text-2xl font-bold text-blue-600 mb-1">
-            {users.filter(u => u.last_sign_in_at && 
-              new Date(u.last_sign_in_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            {users.filter(u => u.last_login && 
+              new Date(u.last_login) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
             ).length}
           </div>
           <p className="text-sm text-gray-600">Active This Week</p>
@@ -194,49 +148,43 @@ export function UserManager() {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-brand-navy">
-                          {user.user_metadata?.full_name || user.email}
+                          {user.full_name || user.email}
                         </h3>
                         <p className="text-gray-600">{user.email}</p>
                       </div>
-                      {user.email.includes('admin') && (
+                      {user.is_admin && (
                         <Badge className="bg-red-100 text-red-800 border-red-200 text-xs">
                           Admin
                         </Badge>
                       )}
-                      {user.email_confirmed_at ? (
-                        <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
-                          Verified
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs">
-                          Unverified
-                        </Badge>
-                      )}
+                      <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
+                        Verified
+                      </Badge>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500">
-                      {user.user_metadata?.company && (
+                      {user.company && (
                         <div className="flex items-center gap-1">
                           <Building className="h-4 w-4" />
-                          <span>{user.user_metadata.company}</span>
+                          <span>{user.company}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
                         <span>Joined: {new Date(user.created_at).toLocaleDateString()}</span>
                       </div>
-                      {user.last_sign_in_at && (
+                      {user.last_login && (
                         <div className="flex items-center gap-1">
                           <UserCheck className="h-4 w-4" />
-                          <span>Last login: {new Date(user.last_sign_in_at).toLocaleDateString()}</span>
+                          <span>Last login: {new Date(user.last_login).toLocaleDateString()}</span>
                         </div>
                       )}
                     </div>
 
-                    {user.user_metadata?.role && (
+                    {user.role && (
                       <div className="mt-2">
                         <Badge variant="outline" className="text-xs border-brand-blue/30 text-brand-blue">
-                          {user.user_metadata.role}
+                          {user.role}
                         </Badge>
                       </div>
                     )}
@@ -247,12 +195,6 @@ export function UserManager() {
                       <Mail className="h-3 w-3 mr-1" />
                       Contact
                     </Button>
-                    {!user.email_confirmed_at && (
-                      <Button size="sm" variant="outline" className="border-green-300 text-green-600 hover:bg-green-50">
-                        <UserCheck className="h-3 w-3 mr-1" />
-                        Verify
-                      </Button>
-                    )}
                   </div>
                 </div>
               </CardContent>
