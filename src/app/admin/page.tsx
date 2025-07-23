@@ -189,44 +189,6 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 capitalize">{currentView}</h2>
-              <p className="text-sm text-gray-600">
-                {currentView === 'dashboard' && 'Overview of platform activity and statistics'}
-                {currentView === 'documents' && 'Manage regulatory documents and files'}
-                {currentView === 'news' && 'Create and manage news updates'}
-                {currentView === 'events' && 'Manage events and conferences'}
-                {currentView === 'users' && 'View and manage user accounts'}
-                {currentView === 'settings' && 'System configuration and preferences'}
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <Button
-                onClick={() => window.location.href = '/'}
-                variant="outline"
-                size="sm"
-                className="border-gray-300 text-gray-600 hover:bg-gray-50"
-              >
-                <Home className="h-4 w-4 mr-2" />
-                View Site
-              </Button>
-              {currentView !== 'dashboard' && (
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-
         {/* Content Area */}
         <div className="flex-1 p-6 overflow-auto">
           {renderContent()}
