@@ -35,7 +35,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { AuthProvider } from '@/components/auth/AuthProvider'
+import { SupabaseAuthProvider } from '@/components/auth/SupabaseAuthProvider'
 import { AppHeader } from '@/components/Header'
 import { FloatingChatbotWidget } from '@/components/chatbot/ChatbotWidget'
 
@@ -54,7 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
+        <SupabaseAuthProvider>
           <div className="min-h-screen bg-background font-sans antialiased">
             <AppHeader />
             <FloatingChatbotWidget
@@ -67,7 +67,7 @@ export default function RootLayout({
             />
             {children}
           </div>
-        </AuthProvider>
+        </SupabaseAuthProvider>
       </body>
     </html>
   )

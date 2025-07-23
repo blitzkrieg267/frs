@@ -1,15 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { useAuth } from "./auth/AuthProvider"
+import { useSupabaseAuth } from "./auth/SupabaseAuthProvider"
 import { LogOut, Menu, Shield, X } from "lucide-react"
-import { USER_ROLES } from "@/lib/constants"
 import { Button } from "./ui/button"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 
 export function AppHeader() {
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, session, signOut, isAdmin } = useSupabaseAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const router = useRouter()
 
@@ -17,6 +16,10 @@ export function AppHeader() {
     router.push(view)
   }
 
+  const handleSignOut = async () => {
+    await signOut()
+    router.push('/')
+  }
   return (
     <header className="bg-white/90 backdrop-blur-sm border-b border-brand-blue/20 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -62,7 +65,7 @@ export function AppHeader() {
             >
               Requirements
             </button>
-            {isAuthenticated && (
+            {session && (
               <>
                 <button
                   onClick={() => handleNavigation('/profile')}
@@ -70,30 +73,39 @@ export function AppHeader() {
                 >
                   Profile
                 </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => handleNavigation('/admin')}
+                    className="text-gray-600 hover:text-brand-blue transition-colors flex items-center gap-1"
+                  >
+                    <Shield className="h-4 w-4" />
+                    Admin
+                  </button>
+                )}
               </>
             )}
           </nav>
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
+            {session ? (
               <div className="flex items-center space-x-3">
                 {/* User Info */}
                 <div className="hidden sm:block text-right">
-                  <p className="text-sm font-medium text-brand-navy">{user?.name}</p>
-                  <p className="text-xs text-gray-500">{USER_ROLES[user?.role || 'PUBLIC'].name}</p>
+                  <p className="text-sm font-medium text-brand-navy">{user?.email}</p>
+                  <p className="text-xs text-gray-500">{isAdmin ? 'Administrator' : 'User'}</p>
                 </div>
 
                 {/* User Avatar */}
                 <div className="w-8 h-8 bg-brand-blue rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    {user?.firstName?.[0]}{user?.lastName?.[0]}
+                    {user?.email?.[0]?.toUpperCase()}
                   </span>
                 </div>
 
                 {/* Logout Button */}
                 <Button
-                  onClick={logout}
+                  onClick={handleSignOut}
                   variant="outline"
                   size="sm"
                   className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white"
@@ -105,7 +117,7 @@ export function AppHeader() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Button
-                  onClick={() => handleNavigation('/profile')}
+                  onClick={() => handleNavigation('/auth/login')}
                   variant="outline"
                   size="sm"
                   className="border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white"
@@ -138,7 +150,7 @@ export function AppHeader() {
             <nav className="flex flex-col space-y-2">
               <button
                 onClick={() => {
-                  handleNavigation('landing')
+                  handleNavigation('/')
                   setIsMenuOpen(false)
                 }}
                 className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
@@ -147,18 +159,18 @@ export function AppHeader() {
               </button>
               <button
                 onClick={() => {
-                  handleNavigation('documents')
+                  handleNavigation('/search')
                   setIsMenuOpen(false)
                 }}
                 className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
               >
-                Documents
+                Search
               </button>
-              {isAuthenticated && (
+              {session && (
                 <>
                   <button
                     onClick={() => {
-                      handleNavigation('licensing')
+                      handleNavigation('/licensing')
                       setIsMenuOpen(false)
                     }}
                     className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
@@ -167,13 +179,25 @@ export function AppHeader() {
                   </button>
                   <button
                     onClick={() => {
-                      handleNavigation('profile')
+                      handleNavigation('/profile')
                       setIsMenuOpen(false)
                     }}
                     className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded"
                   >
                     Profile
                   </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => {
+                        handleNavigation('/admin')
+                        setIsMenuOpen(false)
+                      }}
+                      className="px-4 py-2 text-left text-gray-600 hover:text-brand-blue hover:bg-gray-50 rounded flex items-center gap-2"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Admin
+                    </button>
+                  )}
                 </>
               )}
             </nav>
