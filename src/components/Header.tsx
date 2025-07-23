@@ -21,7 +21,7 @@ export function AppHeader() {
     router.push('/')
   }
   return (
-    <header className="bg-white/90 backdrop-blur-sm border-b border-brand-blue/20 sticky top-0 z-50">
+    <header className="bg-white/90 backdrop-blur-sm border-b border-brand-blue/20 sticky top-0 z-40">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -146,7 +146,7 @@ export function AppHeader() {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
+          <div className="md:hidden py-4 border-t border-gray-200 bg-white/95 backdrop-blur-sm">
             <nav className="flex flex-col space-y-2">
               <button
                 onClick={() => {

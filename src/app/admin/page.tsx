@@ -112,7 +112,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="h-screen bg-gray-50 flex overflow-hidden">
       {/* Sidebar */}
       <div className={`${sidebarOpen ? 'w-64' : 'w-16'} bg-slate-800 text-white transition-all duration-300 flex flex-col`}>
         {/* Sidebar Header */}
@@ -188,9 +188,9 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Content Area */}
-        <div className="flex-1 p-6 overflow-auto">
+        <div className="flex-1 p-6 overflow-y-auto">
           {renderContent()}
         </div>
 

@@ -374,7 +374,7 @@ export default function UserProfileChecklists() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-brand-cream to-brand-light-blue">
+      <div className="min-h-full bg-gradient-to-br from-brand-cream to-brand-light-blue">
         <div className="container mx-auto px-4 py-8">
           {/* User Profile Header */}
           <UserProfileHeader user={mockUserProfile} />

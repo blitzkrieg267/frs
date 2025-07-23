@@ -55,17 +55,19 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <LocalAuthProvider>
-          <div className="min-h-screen bg-background font-sans antialiased">
+          <div className="min-h-screen bg-background font-sans antialiased flex flex-col">
             <AppHeader />
-            <FloatingChatbotWidget
-              iframeSrc="https://copilotstudio.microsoft.com/environments/Default-30eecfdf-8e95-4b3c-9c51-fe8aa6c21e05/bots/cr405_financialFaqChat/webchat?__version__=2"
-              position="bottom-right"
-              theme="brand"
-              size='large'
-              title="FinReg Assistant"
-              subtitle="Ask me about Botswana financial regulations"
-            />
-            {children}
+            <main className="flex-1 relative">
+              {children}
+              <FloatingChatbotWidget
+                iframeSrc="https://copilotstudio.microsoft.com/environments/Default-30eecfdf-8e95-4b3c-9c51-fe8aa6c21e05/bots/cr405_financialFaqChat/webchat?__version__=2"
+                position="bottom-right"
+                theme="brand"
+                size='large'
+                title="FinReg Assistant"
+                subtitle="Ask me about Botswana financial regulations"
+              />
+            </main>
           </div>
         </LocalAuthProvider>
       </body>

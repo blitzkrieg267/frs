@@ -189,9 +189,9 @@ export default function AdvancedSearchEngine() {
   }, [filteredResults])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-cream to-brand-light-blue">
+    <div className="min-h-full bg-gradient-to-br from-brand-cream to-brand-light-blue">
       {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm border-b border-brand-blue/20 sticky top-0 z-10">
+      <div className="bg-white/90 backdrop-blur-sm border-b border-brand-blue/20">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-brand-blue to-brand-navy bg-clip-text text-transparent">
